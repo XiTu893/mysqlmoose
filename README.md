@@ -2,6 +2,115 @@
 
 A mongoose-compatible API for MySQL 8.0, written in ES5 for Node.js.
 
+# mysqlmoose（中文）
+
+一个兼容 mongoose API 的 MySQL 8.0 客户端，使用 ES5 为 Node.js 编写。
+
+## 兼容 MongoDB 的使用方式
+
+mysqlmoose 设计为兼容 mongoose API，使开发者可以使用类似 MongoDB 的方式操作 MySQL 数据库。这意味着你可以：
+
+1. **使用相同的 Schema 定义语法**：可以像在 mongoose 中一样定义数据模型的结构，包括字段类型、默认值等。
+
+2. **使用相同的 CRUD 操作**：可以使用 `create`、`find`、`findOne`、`findById`、`update`、`deleteOne`、`deleteMany` 等方法，与 mongoose 中的用法一致。
+
+3. **支持嵌套对象**：可以像在 MongoDB 中一样定义和存储嵌套对象，mysqlmoose 会自动将其存储为 MySQL 8.0 的 JSON 类型字段。
+
+4. **支持嵌套字段查询**：可以使用点符号（如 `profile.email`）查询嵌套对象中的字段，mysqlmoose 会自动转换为 MySQL 的 JSON 函数查询。
+
+5. **支持链式查询**：可以使用链式调用构建复杂的查询条件，如 `User.find().where('age').in([30, 25]).exec()`。
+
+6. **支持回调和 Promise**：可以使用回调函数或 Promise 处理异步操作，与 mongoose 的用法一致。
+
+## 示例对比
+
+### MongoDB (mongoose) 用法：
+
+```javascript
+const mongoose = require('mongoose');
+
+// 连接数据库
+mongoose.connect('mongodb://localhost:27017/test');
+
+// 定义 Schema
+const userSchema = new mongoose.Schema({
+  name: { type: String, default: '' },
+  age: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
+  profile: {
+    email: { type: String, default: '' },
+    address: { type: String, default: '' },
+    phone: { type: String, default: '' }
+  },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// 创建 Model
+const User = mongoose.model('User', userSchema);
+
+// 创建文档
+const newUser = await User.create({
+  name: 'John Doe',
+  age: 30,
+  isActive: true,
+  profile: {
+    email: 'john@example.com',
+    address: '123 Main St',
+    phone: '555-1234'
+  }
+});
+
+// 查询文档
+const user = await User.findOne({ 'profile.email': 'john@example.com' });
+```
+
+### MySQL (mysqlmoose) 用法：
+
+```javascript
+const mysqlmoose = require('./index');
+
+// 连接数据库
+mysqlmoose.connect({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'test'
+});
+
+// 定义 Schema
+const userSchema = new mysqlmoose.Schema({
+  name: { type: String, default: '' },
+  age: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
+  profile: {
+    email: { type: String, default: '' },
+    address: { type: String, default: '' },
+    phone: { type: String, default: '' }
+  },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// 创建 Model
+const User = mysqlmoose.model('User', userSchema);
+
+// 创建文档
+const newUser = await User.create({
+  name: 'John Doe',
+  age: 30,
+  isActive: true,
+  profile: {
+    email: 'john@example.com',
+    address: '123 Main St',
+    phone: '555-1234'
+  }
+});
+
+// 查询文档
+const user = await User.find({ 'profile.email': 'john@example.com' });
+```
+
+可以看到，两种用法几乎完全一致，这使得开发者可以轻松地在 MySQL 和 MongoDB 之间切换，或者在同一项目中同时使用两种数据库。
+
 ## Features
 
 - Compatible with mongoose API
