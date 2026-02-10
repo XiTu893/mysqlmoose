@@ -7,25 +7,32 @@
 var mysql = require('mysql2/promise');
 var Schema = require('./lib/schema');
 var Model = require('./lib/model');
-var Connection = require('./lib/connection');
 var Query = require('./lib/query');
 
 function MySQLMoose() {
   this.models = {};
   this.connection = null;
+  this.pool = null;
 }
 
 MySQLMoose.prototype.connect = function(options) {
-  return mysql.createConnection(options)
+  // 如果连接池已存在，直接返回
+  if (this.pool) {
+    return Promise.resolve(this.pool);
+  }
+  
+  // 创建新的连接池
+  this.pool = mysql.createPool(options);
+  // 测试连接
+  return this.pool.getConnection()
     .then(conn => {
-      this.connection = conn;
+      conn.release();
+      this.connection = this.pool;
       return this.connection;
     });
 };
 
-MySQLMoose.prototype.Schema = function(definition) {
-  return new Schema(definition);
-};
+ 
 
 MySQLMoose.prototype.model = function(name, schema) {
   if (!this.models[name]) {
@@ -35,7 +42,6 @@ MySQLMoose.prototype.model = function(name, schema) {
 };
 
 module.exports = new MySQLMoose();
-module.exports.Schema = Schema;
 module.exports.Model = Model;
-module.exports.Connection = Connection;
 module.exports.Query = Query;
+module.exports.Schema = Schema;
