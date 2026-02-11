@@ -32,7 +32,10 @@ MySQLMoose.prototype.connect = function(options) {
     });
 };
 
- 
+MySQLMoose.prototype.Schema = function(definition){
+
+  return new Schema(definition);
+};
 
 MySQLMoose.prototype.model = function(name, schema) {
   if (!this.models[name]) {
@@ -43,5 +46,4 @@ MySQLMoose.prototype.model = function(name, schema) {
 
 module.exports = new MySQLMoose();
 module.exports.Model = Model;
-module.exports.Query = Query;
-module.exports.Schema = Schema;
+module.exports.Query = Query; 
